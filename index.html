@@ -1,1 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banque Centrale d'Earth War</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
+:root{
+  --navy: #0b1d33;
+  --navy-deep: #071426;
+  --parchment: #f5efe0;
+  --gold: #c9a227;
+  --gold-bright: #e0c25a;
+  --ink: #1b2430;
+  --slate: #5b6b7c;
+  --war-red: #7a2e2e;
+  --line: rgba(201,162,39,0.35);
+}
+*{ box-sizing:border-box; }
+body{
+  margin:0;
+  background: var(--navy);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(201,162,39,0.06), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(201,162,39,0.05), transparent 45%);
+  color: var(--parchment);
+  font-family: 'Inter', sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{ font-family:'Cormorant Garamond', serif; font-weight:700; letter-spacing:0.01em; }
+.mono{ font-family:'IBM Plex Mono', monospace; }
+a{ color: var(--gold-bright); }
+.page{ max-width:1040px; margin:0 auto; padding:48px 24px 80px; }
+.crest-row{ display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:20px; margin-bottom:44px; }
+.crest{ display:flex; align-items:center; gap:14px; }
+.crest .seal{ width:44px; height:44px; border-radius:50%; border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond', serif; font-weight:700; color:var(--gold-bright); font-size:18px; flex-shrink:0; }
+.crest .name{ font-size:22px; line-height:1.1; }
+.crest .sub{ font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--slate); }
+.hero{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:start; margin-bottom:60px; }
+@media (max-width:860px){ .hero{ grid-template-columns:1fr; } }
+.eyebrow{ font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-bright); margin-bottom:14px; }
+.hero h1{ font-size:46px; line-height:1.05; margin:0 0 20px; color:var(--parchment); }
+.hero h1 em{ font-style:italic; color:var(--gold-bright); }
+.hero p.lede{ font-size:16px; line-height:1.6; color:#cdd6e0; max-width:46ch; }
+.decree{ border-left:2px solid var(--gold); padding-left:16px; margin-top:28px; font-family:'Cormorant Garamond', serif; font-style:italic; font-size:17px; color:#d8c98f; }
+.ledger{ background:var(--parchment); color:var(--ink); border-radius:3px; padding:34px 32px; position:relative; box-shadow:0 30px 60px -20px rgba(0,0,0,0.55); }
+.ledger::before{ content:""; position:absolute; inset:8px; border:1px solid rgba(27,36,48,0.15); pointer-events:none; }
+.ledger h2{ margin:0 0 6px; font-size:24px; color:var(--navy-deep); }
+.ledger .doc-sub{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--slate); margin-bottom:26px; }
+.tabs{ display:flex; gap:4px; margin-bottom:22px; border-bottom:1px solid rgba(27,36,48,0.15); }
+.tab{ flex:1; text-align:center; padding:10px 0; font-size:13px; letter-spacing:0.04em; text-transform:uppercase; color:var(--slate); cursor:pointer; border-bottom:2px solid transparent; background:none; border-top:none; border-left:none; border-right:none; font-family:'Inter',sans-serif; }
+.tab.active{ color:var(--navy-deep); border-bottom-color:var(--war-red); font-weight:600; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--slate); margin-bottom:6px; }
+.field input{ width:100%; padding:11px 12px; border:1px solid rgba(27,36,48,0.25); border-radius:2px; background:#fffdf7; font-family:'Inter',sans-serif; font-size:14px; color:var(--ink); }
+.field input:focus{ outline:2px solid var(--war-red); outline-offset:1px; }
+.btn{ width:100%; padding:12px 16px; border-radius:2px; border:none; background:var(--war-red); color:var(--parchment); font-family:'Inter',sans-serif; font-weight:600; font-size:14px; letter-spacing:0.03em; cursor:pointer; transition:background .15s ease; }
+.btn:hover{ background:#8f3939; }
+.btn:focus-visible{ outline:2px solid var(--navy); outline-offset:2px; }
+.msg{ font-size:13px; margin-top:12px; padding:10px 12px; border-radius:2px; }
+.msg.err{ background:#f4dede; color:#7a2e2e; border:1px solid #d9b3b3; }
+.msg.ok{ background:#e2ecdd; color:#33582f; border:1px solid #b7d0ac; }
+.balance-card{ background:var(--parchment); color:var(--ink); border-radius:3px; padding:32px; position:relative; box-shadow:0 30px 60px -20px rgba(0,0,0,0.55); margin-bottom:32px; }
+.balance-card .label{ font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--slate); margin-bottom:10px; }
+.balance-card .amount{ font-family:'IBM Plex Mono', monospace; font-size:44px; font-weight:600; color:var(--navy-deep); }
+.balance-card .amount .cur{ font-size:20px; color:var(--gold); margin-left:8px; }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+@media (max-width:780px){ .grid-2{ grid-template-columns:1fr; } }
+.panel{ background:var(--parchment); color:var(--ink); border-radius:3px; padding:26px 28px; box-shadow:0 20px 50px -20px rgba(0,0,0,0.5); }
+.panel h3{ margin:0 0 18px; font-size:19px; color:var(--navy-deep); }
+.history-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(27,36,48,0.1); font-size:13px; }
+.history-row:last-child{ border-bottom:none; }
+.history-row .who{ color:var(--slate); }
+.history-row .amt{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
+.history-row .amt.in{ color:#33582f; }
+.history-row .amt.out{ color:var(--war-red); }
+.topbar{ display:flex; justify-content:space-between; align-items:center; }
+.pseudo-badge{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--gold-bright); border:1px solid var(--line); padding:6px 12px; border-radius:20px; }
+.link-btn{ background:none; border:none; color:var(--slate); font-size:12px; text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; }
+.seal-overlay{ position:fixed; inset:0; background:rgba(7,20,38,0.82); display:flex; align-items:center; justify-content:center; z-index:50; }
+.seal-stamp{ width:160px; height:160px; border-radius:50%; border:4px solid var(--war-red); color:var(--war-red); display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:'Cormorant Garamond', serif; transform:scale(2.6) rotate(-18deg); opacity:0; animation:stamp-in .5s cubic-bezier(.2,1.4,.4,1) forwards; }
+@keyframes stamp-in{ 0%{ opacity:0; transform:scale(2.6) rotate(-18deg); } 60%{ opacity:1; transform:scale(0.92) rotate(-8deg); } 100%{ opacity:1; transform:scale(1) rotate(-10deg); } }
+.seal-stamp .big{ font-size:26px; font-weight:700; }
+.seal-stamp .small{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; }
+.hidden{ display:none !important; }
+footer.note{ margin-top:60px; font-size:12px; color:var(--slate); border-top:1px solid var(--line); padding-top:18px; }
+</style>
+</head>
+<body>
+
+<!-- ===================== VUE : CONNEXION / INSCRIPTION ===================== -->
+<div class="page" id="view-landing">
+
+  <div class="crest-row">
+    <div class="crest">
+      <div class="seal">EW</div>
+      <div>
+        <div class="name display">Banque Centrale d'Earth War</div>
+        <div class="sub">Institution monétaire des nations</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Ouverture de compte gratuite</div>
+      <h1>Une monnaie <em>officielle</em><br>pour les nations en guerre.</h1>
+      <p class="lede">
+        Chaque joueur d'Earth War RP peut ouvrir un compte à la Banque Centrale.
+        Recevez un capital de départ, échangez avec les autres nations, et suivez
+        vos avoirs en temps réel — le tout gratuitement.
+      </p>
+      <div class="decree">
+        « Nul commerce entre nations sans compte dûment enregistré
+        auprès de la Banque Centrale. » — Article 1, Charte Économique
+      </div>
+    </div>
+
+    <div class="ledger">
+      <h2>Ouvrir un dossier</h2>
+      <div class="doc-sub">Formulaire n°EW-01</div>
+
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')" type="button">Connexion</button>
+        <button class="tab" id="tab-signup" onclick="switchTab('signup')" type="button">Inscription</button>
+      </div>
+
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" required autocomplete="current-password">
+        </div>
+        <button class="btn" type="submit">Accéder à mon compte</button>
+      </form>
+
+      <form id="form-signup" class="hidden" onsubmit="handleSignup(event)">
+        <div class="field">
+          <label for="signup-pseudo">Pseudo Minecraft</label>
+          <input type="text" id="signup-pseudo" required minlength="3" placeholder="Nezix291">
+        </div>
+        <div class="field">
+          <label for="signup-email">E-mail</label>
+          <input type="email" id="signup-email" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="signup-password">Mot de passe</label>
+          <input type="password" id="signup-password" required minlength="6" autocomplete="new-password">
+        </div>
+        <button class="btn" type="submit">Ouvrir mon compte</button>
+      </form>
+
+      <div id="msg" class="msg hidden"></div>
+    </div>
+  </div>
+
+  <footer class="note">
+    Ceci est une monnaie fictive utilisée uniquement dans le cadre du serveur Minecraft
+    Earth War RP. Elle n'a aucune valeur réelle et ne peut pas être échangée contre de l'argent.
+  </footer>
+</div>
+
+<!-- ===================== VUE : DASHBOARD ===================== -->
+<div class="page hidden" id="view-dashboard">
+
+  <div class="crest-row">
+    <div class="crest">
+      <div class="seal">EW</div>
+      <div>
+        <div class="name display">Banque Centrale d'Earth War</div>
+        <div class="sub">Relevé de compte</div>
+      </div>
+    </div>
+    <div class="topbar" style="gap:14px;">
+      <span class="pseudo-badge" id="pseudo-badge">@...</span>
+      <button class="link-btn" onclick="handleLogout()" type="button">Se déconnecter</button>
+    </div>
+  </div>
+
+  <div class="balance-card">
+    <div class="label">Solde actuel</div>
+    <div class="amount"><span id="solde">0,00</span><span class="cur">EW$</span></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h3>Virement à un joueur</h3>
+      <form id="form-transfer" onsubmit="handleTransfer(event)">
+        <div class="field">
+          <label for="transfer-pseudo">Pseudo du destinataire</label>
+          <input type="text" id="transfer-pseudo" required placeholder="ex: Nezix291">
+        </div>
+        <div class="field">
+          <label for="transfer-montant">Montant (EW$)</label>
+          <input type="number" id="transfer-montant" required min="0.01" step="0.01">
+        </div>
+        <div class="field">
+          <label for="transfer-note">Motif (optionnel)</label>
+          <input type="text" id="transfer-note" placeholder="ex: Achat de terrain">
+        </div>
+        <button class="btn" type="submit" id="transfer-btn">Envoyer le virement</button>
+        <div id="transfer-msg" class="msg hidden"></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h3>Historique récent</h3>
+      <div id="historique"></div>
+    </div>
+  </div>
+
+  <footer class="note">
+    Monnaie fictive réservée au serveur Minecraft Earth War RP. Sans valeur réelle.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============================================================
+// À REMPLIR : va sur https://supabase.com, crée un projet gratuit,
+// puis Project Settings > API pour récupérer ces 2 valeurs.
+// ============================================================
+const SUPABASE_URL = "https://wnjdetjmlovpobfydyra.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wjMazjLXsmeUFBozHehABA_dMeNK...";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+
+// ---------- Navigation entre vues ----------
+function showLanding(){
+  document.getElementById('view-dashboard').classList.add('hidden');
+  document.getElementById('view-landing').classList.remove('hidden');
+}
+function showDashboard(){
+  document.getElementById('view-landing').classList.add('hidden');
+  document.getElementById('view-dashboard').classList.remove('hidden');
+}
+
+// ---------- Onglets connexion / inscription ----------
+function switchTab(tab){
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  document.getElementById('form-login').classList.toggle('hidden', tab!=='login');
+  document.getElementById('form-signup').classList.toggle('hidden', tab!=='signup');
+  clearMsg();
+}
+function clearMsg(){
+  const m = document.getElementById('msg');
+  m.className = 'msg hidden';
+  m.textContent = '';
+}
+function showMsg(text, type){
+  const m = document.getElementById('msg');
+  m.className = 'msg ' + type;
+  m.textContent = text;
+}
+function showSeal(text){
+  const overlay = document.createElement('div');
+  overlay.className = 'seal-overlay';
+  overlay.innerHTML = `<div class="seal-stamp"><div class="big">✓</div><div class="small">${text}</div></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=> overlay.remove(), 1400);
+}
+function traduireErreur(msg){
+  if(/already registered/i.test(msg)) return "Cet e-mail possède déjà un compte.";
+  if(/invalid login credentials/i.test(msg)) return "E-mail ou mot de passe incorrect.";
+  if(/password should be at least/i.test(msg)) return "Le mot de passe est trop court (6 caractères minimum).";
+  if(/duplicate key value violates unique constraint/i.test(msg)) return "Ce pseudo est déjà pris.";
+  return msg;
+}
+
+// ---------- Auth ----------
+async function handleSignup(e){
+  e.preventDefault();
+  clearMsg();
+  const pseudo = document.getElementById('signup-pseudo').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+
+  if(pseudo.length < 3){ showMsg("Le pseudo doit faire au moins 3 caractères.", "err"); return; }
+
+  const { error } = await supabaseClient.auth.signUp({
+    email, password, options: { data: { pseudo } }
+  });
+  if(error){ showMsg(traduireErreur(error.message), "err"); return; }
+
+  showSeal("Compte ouvert");
+  setTimeout(async () => {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(session){ currentUser = session.user; await refreshCompte(); await refreshHistorique(); showDashboard(); }
+  }, 900);
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  clearMsg();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if(error){ showMsg(traduireErreur(error.message), "err"); return; }
+
+  currentUser = data.user;
+  await refreshCompte();
+  await refreshHistorique();
+  showDashboard();
+}
+
+async function handleLogout(){
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  showLanding();
+}
+
+// ---------- Dashboard ----------
+async function refreshCompte(){
+  const { data, error } = await supabaseClient
+    .from('comptes').select('pseudo, solde').eq('id', currentUser.id).single();
+  if(error){ console.error(error); return; }
+  document.getElementById('pseudo-badge').textContent = '@' + data.pseudo;
+  document.getElementById('solde').textContent = Number(data.solde).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+async function refreshHistorique(){
+  const { data, error } = await supabaseClient
+    .from('transactions')
+    .select('id, montant, note, created_at, de_id, vers_id, de:de_id(pseudo), vers:vers_id(pseudo)')
+    .or(`de_id.eq.${currentUser.id},vers_id.eq.${currentUser.id}`)
+    .order('created_at', { ascending:false })
+    .limit(20);
+
+  const list = document.getElementById('historique');
+  list.innerHTML = '';
+
+  if(error){ console.error(error); list.innerHTML = '<p class="history-row"><span class="who">Erreur de chargement</span></p>'; return; }
+  if(!data || data.length === 0){ list.innerHTML = '<p class="history-row"><span class="who">Aucune transaction pour le moment.</span></p>'; return; }
+
+  data.forEach(t => {
+    const estEnvoi = t.de_id === currentUser.id;
+    const autre = estEnvoi ? (t.vers?.pseudo || '?') : (t.de?.pseudo || '?');
+    const row = document.createElement('div');
+    row.className = 'history-row';
+    row.innerHTML = `<span class="who">${estEnvoi ? 'Vers' : 'De'} @${autre}${t.note ? ' — ' + escapeHtml(t.note) : ''}</span><span class="amt ${estEnvoi ? 'out' : 'in'}">${estEnvoi ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR', {minimumFractionDigits:2})}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+async function handleTransfer(e){
+  e.preventDefault();
+  const btn = document.getElementById('transfer-btn');
+  const dest = document.getElementById('transfer-pseudo').value.trim().replace(/^@/, '');
+  const montant = parseFloat(document.getElementById('transfer-montant').value);
+  const note = document.getElementById('transfer-note').value.trim();
+  const msg = document.getElementById('transfer-msg');
+
+  msg.className = 'msg hidden';
+  btn.disabled = true;
+
+  const { error } = await supabaseClient.rpc('transfer_funds', {
+    p_vers_pseudo: dest, p_montant: montant, p_note: note || null
+  });
+
+  btn.disabled = false;
+
+  if(error){ msg.className = 'msg err'; msg.textContent = error.message.replace(/^.*: /, ''); return; }
+
+  msg.className = 'msg ok';
+  msg.textContent = `Virement de ${montant.toLocaleString('fr-FR')} envoyé à @${dest}.`;
+  document.getElementById('form-transfer').reset();
+  await refreshCompte();
+  await refreshHistorique();
+}
+
+// ---------- Démarrage : reprend la session si déjà connecté ----------
+(async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    await refreshCompte();
+    await refreshHistorique();
+    showDashboard();
+  } else {
+    showLanding();
+  }
+})();
+</script>
+</body>
+</html>
